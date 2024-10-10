@@ -6,6 +6,21 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDependencies();
 
+builder.Services.AddSwaggerGen(c => 
+{
+    c.SwaggerDoc("v1", new() 
+        { 
+            Title = "ApiExemplo", 
+            Description = "Exemplo de uso de CQRS",
+            Version = "v1",
+            Contact = new()
+            {
+                Name = "Marcelo Gomes",
+                Url = new("https://github.com/marcelogcatnguiba/")
+            }
+        });
+});
+
 var app = builder.Build();
 
 app.Services.AddDataBase();
@@ -15,7 +30,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => 
     {
-        c.DocumentTitle = "Exemplo CQRS";
+        c.DocumentTitle = "ApiExemplo";
     });
 }
 

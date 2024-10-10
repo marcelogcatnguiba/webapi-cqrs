@@ -10,8 +10,8 @@ namespace WebApiCQRS.WebApi.Endpoints.Usuario
         {
             var usuarioMap = app.MapGroup("Usuario");
             
-            usuarioMap.MapGet("/", GetAll);
             usuarioMap.MapGet("/{id}", Get);
+            usuarioMap.MapGet("/", GetAll);
             usuarioMap.MapPost("/", Create);
             usuarioMap.MapPut("/", Update);
             usuarioMap.MapDelete("/{id}", Delete);
