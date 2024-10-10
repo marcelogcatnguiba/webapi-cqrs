@@ -13,7 +13,10 @@ app.Services.AddDataBase();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c => 
+    {
+        c.DocumentTitle = "Exemplo CQRS";
+    });
 }
 
 app.UsuarioEndpointMap();

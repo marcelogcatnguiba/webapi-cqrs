@@ -8,35 +8,39 @@ namespace WebApiCQRS.WebApi.Endpoints.Usuario
     {
         public static void UsuarioEndpointMap(this WebApplication app)
         {
-            app.MapGet("Usuario", async (IMediator mediator) =>
-                Results.Ok(await mediator.Send(new GetUsuariosQuery()))
-            );
+            var usuarioMap = app.MapGroup("Usuario");
+            
+            usuarioMap.MapGet("/", GetAll);
+            usuarioMap.MapGet("/{id}", Get);
+            usuarioMap.MapPost("/", Create);
+            usuarioMap.MapPut("/", Update);
+            usuarioMap.MapDelete("/{id}", Delete);
 
-            app.MapGet("Usuarios/{id}", async (int id, IMediator mediator) =>
-            {
-                var user = await mediator.Send(new GetUsuarioByIdQuery(id));
-                return user is null
-                    ? Results.NotFound("Usuario nao encontrado !!!")
-                    : Results.Ok(user);
-            });
+            static async Task<IResult> GetAll(IMediator mediator) => 
+                Results.Ok(await mediator.Send(new GetUsuariosQuery()));
 
-            app.MapPost("Usuarios", async (IMediator mediator, UsuarioCreateCommand command) =>
+            static async Task<IResult> Get(IMediator mediator, int id) => 
+                await mediator.Send(new GetUsuarioByIdQuery(id)) is {} user 
+                    ? Results.Ok(user)
+                    : Results.NotFound("Usuario nao encontrado !!!");
+
+            static async Task<IResult> Create(IMediator mediator, UsuarioCreateCommand command)
             {
                 await mediator.Send(command);
                 return Results.Ok();
-            });
+            };
 
-            app.MapPut("Usuario/", async (IMediator mediator, UsuarioUpdateCommand command) =>
+            static async Task<IResult> Update(IMediator mediator, UsuarioUpdateCommand command)
             {
                 await mediator.Send(command);
                 return Results.Created();
-            });
+            }
 
-            app.MapDelete("Usuario/{id}", async (IMediator mediator, int id) =>
+            static async Task<IResult> Delete(IMediator mediator, int id)
             {
                 await mediator.Send(new UsuarioDeleteCommand() { Id = id });
                 return Results.Ok();
-            });
+            }
         }
     }
 }
