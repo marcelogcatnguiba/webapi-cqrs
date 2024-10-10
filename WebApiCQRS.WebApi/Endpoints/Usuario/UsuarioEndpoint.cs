@@ -1,6 +1,7 @@
 using MediatR;
 using WebApiCQRS.Application.CQS.Usuarios.Commands;
 using WebApiCQRS.Application.CQS.Usuarios.Queries;
+using Domain = WebApiCQRS.Domain.Entities;
 
 namespace WebApiCQRS.WebApi.Endpoints.Usuario
 {
@@ -10,20 +11,45 @@ namespace WebApiCQRS.WebApi.Endpoints.Usuario
         {
             var usuarioMap = app.MapGroup("Usuario");
             
-            usuarioMap.MapGet("/{id}", Get);
-            usuarioMap.MapGet("/", GetAll);
-            usuarioMap.MapPost("/", Create);
-            usuarioMap.MapPut("/", Update);
-            usuarioMap.MapDelete("/{id}", Delete);
+            usuarioMap
+                .MapGet("/{id}", Get)
+                .Produces<Domain::Usuario>(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status404NotFound);
 
-            static async Task<IResult> GetAll(IMediator mediator) => 
-                Results.Ok(await mediator.Send(new GetUsuariosQuery()));
+            usuarioMap
+                .MapGet("/", GetAll)
+                .Produces<List<Domain::Usuario>>(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status204NoContent);
 
-            static async Task<IResult> Get(IMediator mediator, int id) => 
-                await mediator.Send(new GetUsuarioByIdQuery(id)) is {} user 
+            usuarioMap
+                .MapPost("/", Create)
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status400BadRequest);
+
+            usuarioMap
+                .MapPut("/", Update)
+                .Produces(StatusCodes.Status201Created)
+                .Produces(StatusCodes.Status400BadRequest);
+
+            usuarioMap
+                .MapDelete("/{id}", Delete)
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status404NotFound);
+
+            static async Task<IResult> Get(IMediator mediator, int id)
+            {
+                return await mediator.Send(new GetUsuarioByIdQuery(id)) is {} user 
                     ? Results.Ok(user)
                     : Results.NotFound("Usuario nao encontrado !!!");
-
+            }
+            
+            static async Task<IResult> GetAll(IMediator mediator)
+            {
+                return await mediator.Send(new GetUsuariosQuery()) is {} users
+                    ? Results.Ok(users)
+                    : Results.NoContent();
+            }
+                
             static async Task<IResult> Create(IMediator mediator, UsuarioCreateCommand command)
             {
                 await mediator.Send(command);
@@ -38,8 +64,16 @@ namespace WebApiCQRS.WebApi.Endpoints.Usuario
 
             static async Task<IResult> Delete(IMediator mediator, int id)
             {
-                await mediator.Send(new UsuarioDeleteCommand() { Id = id });
-                return Results.Ok();
+                try
+                {
+                    await mediator.Send(new UsuarioDeleteCommand() { Id = id });
+                    return Results.Ok();    
+                }
+                catch
+                {
+                    return Results.NotFound("Usuario não encontrado");
+                }
+                
             }
         }
     }
