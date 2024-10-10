@@ -12,6 +12,7 @@ namespace WebApiCQRS.Data.Context
         {
             optionsBuilder.UseInMemoryDatabase("UserDb");
         }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Usuario>()

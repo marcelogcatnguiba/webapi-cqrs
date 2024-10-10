@@ -13,12 +13,12 @@ namespace WebApiCQRS.WebApi.Endpoints.Usuario
             );
 
             app.MapGet("Usuarios/{id}", async (int id, IMediator mediator) =>
-                {
-                    var user = await mediator.Send(new GetUsuarioByIdQuery(id));
-                    return user is null
-                        ? Results.NotFound("Usuario nao encontrado !!!")
-                        : Results.Ok(user);
-                });
+            {
+                var user = await mediator.Send(new GetUsuarioByIdQuery(id));
+                return user is null
+                    ? Results.NotFound("Usuario nao encontrado !!!")
+                    : Results.Ok(user);
+            });
 
             app.MapPost("Usuarios", async (IMediator mediator, UsuarioCreateCommand command) =>
             {
